@@ -29,23 +29,30 @@ function StatCard({
 
 export default async function Dashboard() {
   const db = await getDb();
-  const [projects, clientCount, leadCount, running] = await Promise.all([
-    db.project.findMany({
-      include: {
-        client: true,
-        timeEntries: {
-          select: { minutes: true, billable: true, startTime: true },
+  const [projects, clientCount, leadCount, running, sentInvoices] =
+    await Promise.all([
+      db.project.findMany({
+        include: {
+          client: true,
+          timeEntries: {
+            select: { minutes: true, billable: true, startTime: true },
+          },
+          expenses: { select: { amount: true, billable: true } },
         },
-        expenses: { select: { amount: true, billable: true } },
-      },
-    }),
-    db.client.count({ where: { status: "active" } }),
-    db.lead.count({ where: { status: { notIn: ["won", "lost"] } } }),
-    db.timeEntry.findFirst({
-      where: { endTime: null },
-      include: { project: { include: { client: true } } },
-    }),
-  ]);
+      }),
+      db.client.count({ where: { status: "active" } }),
+      db.lead.count({ where: { status: { notIn: ["won", "lost"] } } }),
+      db.timeEntry.findFirst({
+        where: { endTime: null },
+        include: { project: { include: { client: true } } },
+      }),
+      db.invoice.findMany({
+        where: { status: "sent" },
+        select: { amount: true },
+      }),
+    ]);
+
+  const outstanding = sentInvoices.reduce((s, i) => s + i.amount, 0);
 
   const activeProjects = projects.filter((p) => p.status === "active");
   let totalRevenue = 0;
@@ -91,12 +98,17 @@ export default async function Dashboard() {
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard label="Revenue booked" value={money(totalRevenue)} />
-        <StatCard label="Profit" value={money(totalProfit)} />
+        <StatCard
+          label="Outstanding"
+          value={money(outstanding)}
+          href="/invoices"
+        />
         <StatCard
           label="Tracked this week"
           value={duration(weekMinutes)}
           href="/time"
         />
+        <StatCard label="Profit" value={money(totalProfit)} />
         <StatCard
           label="Active projects"
           value={String(activeProjects.length)}

@@ -8,6 +8,7 @@ import { TimerControl } from "@/components/TimerControl";
 import { CredentialItem } from "@/components/CredentialItem";
 import { SubmitButton } from "@/components/SubmitButton";
 import { projectTotals } from "@/lib/finance";
+import { displayStatus } from "@/lib/invoice";
 import { money, duration, formatDate, formatDateTime } from "@/lib/format";
 import {
   deleteProject,
@@ -57,6 +58,7 @@ export default async function ProjectDetailPage({
       timeEntries: { orderBy: { startTime: "desc" } },
       credentials: { orderBy: { createdAt: "asc" } },
       expenses: { orderBy: { date: "desc" } },
+      invoices: { orderBy: { issueDate: "desc" } },
     },
   });
   if (!project) notFound();
@@ -378,6 +380,47 @@ export default async function ProjectDetailPage({
                       />
                     </div>
                   </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Invoices */}
+          <section>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Invoices</h2>
+              <Link
+                href={`/invoices/new?projectId=${id}`}
+                className="btn-primary btn-sm"
+              >
+                + New
+              </Link>
+            </div>
+            {project.invoices.length === 0 ? (
+              <div className="card p-6 text-center text-sm text-[var(--muted)]">
+                No invoices yet.
+              </div>
+            ) : (
+              <div className="card divide-y divide-[var(--border)]">
+                {project.invoices.map((inv) => (
+                  <Link
+                    key={inv.id}
+                    href={`/invoices/${inv.id}`}
+                    className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[var(--background)]"
+                  >
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium">
+                        {inv.number}
+                      </div>
+                      <div className="text-xs text-[var(--muted)]">
+                        {formatDate(inv.issueDate)}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <StatusBadge status={displayStatus(inv)} />
+                      <span className="text-sm">{money(inv.amount)}</span>
+                    </div>
+                  </Link>
                 ))}
               </div>
             )}

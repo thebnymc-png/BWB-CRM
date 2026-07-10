@@ -49,6 +49,7 @@ CREATE TABLE "TimeEntry" (
     "minutes" INTEGER NOT NULL DEFAULT 0,
     "billable" BOOLEAN NOT NULL DEFAULT true,
     "invoiced" BOOLEAN NOT NULL DEFAULT false,
+    "invoiceId" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "projectId" TEXT NOT NULL,
     CONSTRAINT "TimeEntry_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project" ("id") ON DELETE CASCADE ON UPDATE CASCADE
@@ -71,6 +72,8 @@ CREATE TABLE "Expense" (
     "amount" REAL NOT NULL,
     "date" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "billable" BOOLEAN NOT NULL DEFAULT false,
+    "invoiced" BOOLEAN NOT NULL DEFAULT false,
+    "invoiceId" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "projectId" TEXT NOT NULL,
     CONSTRAINT "Expense_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project" ("id") ON DELETE CASCADE ON UPDATE CASCADE
@@ -84,6 +87,7 @@ CREATE TABLE "Invoice" (
     "dueDate" DATETIME,
     "paidDate" DATETIME,
     "notes" TEXT,
+    "lineItems" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "projectId" TEXT NOT NULL,

@@ -8,9 +8,12 @@ Built with **Next.js (App Router)**, **Prisma**, and **SQLite / Cloudflare D1**.
 Runs locally on a file database and deploys to **Cloudflare Pages** on D1 with
 the same schema.
 
-## What's in this version (core)
+## What's in this version
 
-- **Dashboard** — revenue, profit, hours this week, active projects/clients/leads.
+- **Dashboard** — revenue, outstanding, profit, hours this week, active projects/clients/leads.
+- **Leads** — a drag-and-drop Kanban pipeline (new → contacted → qualified →
+  proposal → won / lost) with source tags, follow-up dates (overdue highlighted),
+  and one-click **convert-to-client**.
 - **Clients** — full contact records, notes, status, and their projects.
 - **Projects** — hourly rate / fixed fee / budget, status, dates.
   - **Time tracking** — a live start/stop timer plus manual entries, billable flag.
@@ -18,10 +21,11 @@ the same schema.
   - **Costs** — project expenses, optionally billed back to the client.
   - **Finance roll-up** — revenue (time + fee + billable costs), profit, hours.
 - **Time** — one place to start a timer on any project and see your log by day.
-
-**Coming next:** the Leads pipeline (Kanban board, follow-ups, convert-to-client)
-and Invoices (generate from tracked time/costs, track paid/overdue). The database
-already has the `Lead` and `Invoice` models, so these slot straight in.
+- **Invoices** — generate an invoice from a project's un-billed billable time,
+  costs and fixed fee; edit meta; track **draft → sent → paid** (auto-flags
+  **overdue** past the due date); a print-ready view for **Save-as-PDF**; and an
+  outstanding/overdue/paid summary. Deleting an invoice releases its time & costs
+  so they can be re-billed.
 
 > **Note on logins:** credentials are stored as entered (plain text), per the
 > current setup. Keep access to the app and the database restricted. Encrypting
@@ -94,7 +98,12 @@ it still runs fine under Node for local dev.
    `npm run cf:d1:init-remote` (for a fresh DB) — for an existing DB, apply just
    the new migration's SQL with `wrangler d1 execute bwb-crm-db --remote --file=...`.
 
+Incremental D1 migrations (for a database that already has data) live in
+`d1/` as numbered files, e.g. `d1/002_invoicing.sql` — paste one into the D1
+Console when the schema changes. `d1/schema.sql` is always the full, current
+schema for a fresh database.
+
 ## Currency
 
-Amounts default to GBP (`en-GB`). Override with the `CURRENCY` and
+Amounts default to AUD, shown as `$` (`en-AU`). Override with the `CURRENCY` and
 `CURRENCY_LOCALE` environment variables if you bill in another currency.

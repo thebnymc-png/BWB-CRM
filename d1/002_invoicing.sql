@@ -1,0 +1,4 @@
+ALTER TABLE "Invoice" ADD COLUMN "lineItems" TEXT;
+ALTER TABLE "TimeEntry" ADD COLUMN "invoiceId" TEXT;
+ALTER TABLE "Expense" ADD COLUMN "invoiced" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Expense" ADD COLUMN "invoiceId" TEXT;

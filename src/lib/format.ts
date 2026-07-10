@@ -1,7 +1,7 @@
-// Display helpers. Currency defaults to GBP but can be overridden with the
-// CURRENCY / CURRENCY_LOCALE env vars if you bill in another currency.
-const CURRENCY = process.env.CURRENCY ?? "GBP";
-const LOCALE = process.env.CURRENCY_LOCALE ?? "en-GB";
+// Display helpers. Currency defaults to AUD (shown as $) but can be overridden
+// with the CURRENCY / CURRENCY_LOCALE env vars if you bill in another currency.
+const CURRENCY = process.env.CURRENCY ?? "AUD";
+const LOCALE = process.env.CURRENCY_LOCALE ?? "en-AU";
 
 export function money(amount: number | null | undefined): string {
   return new Intl.NumberFormat(LOCALE, {

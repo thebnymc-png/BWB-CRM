@@ -75,3 +75,21 @@ body {
     @apply text-sm text-[var(--muted)];
   }
 }
+
+/* Print: show only the invoice document, nothing else. */
+@media print {
+  aside,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  main {
+    padding: 0 !important;
+  }
+  .print-area {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
