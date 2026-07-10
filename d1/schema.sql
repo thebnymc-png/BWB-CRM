@@ -1,5 +1,3 @@
--- Generated from prisma/migrations. Apply to Cloudflare D1 to create the schema.
--- CreateTable
 CREATE TABLE "Lead" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
@@ -15,8 +13,6 @@ CREATE TABLE "Lead" (
     "convertedClientId" TEXT,
     CONSTRAINT "Lead_convertedClientId_fkey" FOREIGN KEY ("convertedClientId") REFERENCES "Client" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
-
--- CreateTable
 CREATE TABLE "Client" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
@@ -30,8 +26,6 @@ CREATE TABLE "Client" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
-
--- CreateTable
 CREATE TABLE "Project" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
@@ -47,8 +41,6 @@ CREATE TABLE "Project" (
     "clientId" TEXT NOT NULL,
     CONSTRAINT "Project_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
-
--- CreateTable
 CREATE TABLE "TimeEntry" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "description" TEXT,
@@ -61,8 +53,6 @@ CREATE TABLE "TimeEntry" (
     "projectId" TEXT NOT NULL,
     CONSTRAINT "TimeEntry_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
-
--- CreateTable
 CREATE TABLE "Credential" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "label" TEXT NOT NULL,
@@ -75,8 +65,6 @@ CREATE TABLE "Credential" (
     "projectId" TEXT NOT NULL,
     CONSTRAINT "Credential_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
-
--- CreateTable
 CREATE TABLE "Expense" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "description" TEXT NOT NULL,
@@ -87,8 +75,6 @@ CREATE TABLE "Expense" (
     "projectId" TEXT NOT NULL,
     CONSTRAINT "Expense_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
-
--- CreateTable
 CREATE TABLE "Invoice" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "number" TEXT NOT NULL,
