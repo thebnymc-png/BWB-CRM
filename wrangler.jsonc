@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "bwb-crm",
+  "name": "bwbcrm",
   "main": ".open-next/worker.js",
   "compatibility_date": "2025-03-25",
   // nodejs_compat is required by both Next.js/OpenNext and the Prisma D1 adapter.
@@ -13,8 +13,7 @@
     {
       "binding": "DB",
       "database_name": "bwb-crm-db",
-      // Replace after running: wrangler d1 create bwb-crm-db
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+      "database_id": "40229ab6-5b35-404e-abc2-f6b1aaa1d452"
     }
   ]
 }
