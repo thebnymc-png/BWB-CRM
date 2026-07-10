@@ -1,0 +1,133 @@
+// BWB CRM — schema
+// Freelance design business CRM + time tracker.
+// Core (this pass): Client, Project, TimeEntry, Credential, Expense.
+// Wired for later: Lead pipeline, Invoice tracking.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  // Target the Cloudflare Workers runtime so the query-compiler WASM is imported
+  // statically (workerd forbids compiling WASM from bytes at runtime).
+  runtime  = "workerd"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// A cold call / prospect before they become a paying client.
+model Lead {
+  id           String    @id @default(cuid())
+  name         String
+  company      String?
+  email        String?
+  phone        String?
+  source       String? // where the lead came from (referral, cold call, IG, etc.)
+  status       String    @default("new") // new | contacted | qualified | proposal | won | lost
+  notes        String?
+  nextFollowUp DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // If a lead converts, link to the client record it became.
+  convertedClient   Client? @relation(fields: [convertedClientId], references: [id])
+  convertedClientId String?
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  company   String?
+  email     String?
+  phone     String?
+  website   String?
+  address   String?
+  notes     String?
+  status    String   @default("active") // active | inactive | archived
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects Project[]
+  leads    Lead[]
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  status      String    @default("active") // active | on_hold | completed | cancelled
+  hourlyRate  Float? // billable rate for time entries on this project
+  fixedFee    Float? // optional flat project fee instead of / on top of hourly
+  budgetHours Float? // optional cap for tracking against estimate
+  startDate   DateTime?
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+
+  timeEntries TimeEntry[]
+  credentials Credential[]
+  expenses    Expense[]
+  invoices    Invoice[]
+}
+
+// Time tracking — either a running timer (endTime null) or a completed entry.
+model TimeEntry {
+  id          String    @id @default(cuid())
+  description String?
+  startTime   DateTime  @default(now())
+  endTime     DateTime? // null while a timer is running
+  minutes     Int       @default(0) // computed on stop; also settable for manual entries
+  billable    Boolean   @default(true)
+  invoiced    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+}
+
+// Project vault: hosting, logins, DNS, API keys, etc. Stored as entered (plain text).
+model Credential {
+  id        String   @id @default(cuid())
+  label     String // e.g. "cPanel", "WordPress admin", "Domain registrar"
+  url       String?
+  username  String?
+  password  String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+}
+
+// A project cost (stock photos, plugins, subcontractor, hosting paid on behalf of client).
+model Expense {
+  id          String   @id @default(cuid())
+  description String
+  amount      Float
+  date        DateTime @default(now())
+  billable    Boolean  @default(false) // pass-through to client?
+  createdAt   DateTime @default(now())
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+}
+
+model Invoice {
+  id        String    @id @default(cuid())
+  number    String // human-facing invoice number
+  amount    Float
+  status    String    @default("draft") // draft | sent | paid | overdue
+  issueDate DateTime  @default(now())
+  dueDate   DateTime?
+  paidDate  DateTime?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+}
